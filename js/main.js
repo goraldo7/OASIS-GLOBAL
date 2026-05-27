@@ -48,6 +48,16 @@ window.addEventListener('click', (event) => {
   }
 });
 
+// Close mobile menu when any link inside it is clicked
+if (mobileMenu) {
+  mobileMenu.addEventListener('click', (e) => {
+    const anchor = e.target.closest('a');
+    if (!anchor) return;
+    mobileMenu.style.display = 'none';
+    mobileToggle.setAttribute('aria-expanded', 'false');
+  });
+}
+
 const activateTab = (targetName) => {
   tabs.forEach((tab) => {
     const active = tab.dataset.target === targetName;
@@ -124,6 +134,55 @@ const enableCursor = () => {
   document.querySelectorAll('a, button').forEach((element) => {
     element.addEventListener('mouseenter', () => cursor.classList.add('cursor-hover'));
     element.addEventListener('mouseleave', () => cursor.classList.remove('cursor-hover'));
+  });
+};
+
+// Try to fix broken <img> and background-image URLs by testing the source,
+// attempting a cleaned URL (strip query params), then falling back to a placeholder.
+const fixBrokenImages = () => {
+  const placeholder = 'https://via.placeholder.com/1200x800/090909/ffffff?text=Image+not+available';
+
+  const testAndReplace = (url, onSuccess, onFail) => {
+    if (!url) return onFail();
+    const img = new Image();
+    img.onload = () => onSuccess(url);
+    img.onerror = () => {
+      const cleaned = url.split('?')[0];
+      if (cleaned && cleaned !== url) {
+        const img2 = new Image();
+        img2.onload = () => onSuccess(cleaned);
+        img2.onerror = () => onFail();
+        img2.src = cleaned;
+      } else {
+        onFail();
+      }
+    };
+    img.src = url;
+  };
+
+  // Fix <img> elements
+  document.querySelectorAll('img').forEach((imgEl) => {
+    const src = imgEl.getAttribute('src') || imgEl.src;
+    testAndReplace(src, (goodUrl) => {
+      if (imgEl.src !== goodUrl) imgEl.src = goodUrl;
+    }, () => {
+      imgEl.src = placeholder;
+    });
+  });
+
+  // Fix inline background-image styles
+  document.querySelectorAll('[style]').forEach((el) => {
+    const bg = getComputedStyle(el).getPropertyValue('background-image');
+    const match = /url\(["']?(.*?)["']?\)/.exec(bg);
+    if (match && match[1]) {
+      const url = match[1];
+      testAndReplace(url, (goodUrl) => {
+        const current = el.style.backgroundImage || '';
+        if (!current.includes(goodUrl)) el.style.backgroundImage = `url('${goodUrl}')`;
+      }, () => {
+        el.style.backgroundImage = `url('${placeholder}')`;
+      });
+    }
   });
 };
 
@@ -320,6 +379,7 @@ const initReveal = () => {
   slideTestimonials();
   animateCounters();
   enableCursor();
+  fixBrokenImages();
   initGsap();
   mouseParallax();
   enableCardTilt();

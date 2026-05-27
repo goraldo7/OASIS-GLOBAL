@@ -207,17 +207,20 @@ button {
   height: 44px;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .mobile-toggle span {
   display: block;
-  width: 22px;
-  height: 2px;
+  width: 24px;
+  height: 3px;
   background: var(--white);
-  border-radius: 999px;
-  margin: 4px 0;
-  transition: transform 0.3s ease;
+  border-radius: 2px;
+  margin: 0;
+  transition: transform 0.2s ease, opacity 0.2s ease;
 }
 
 .mobile-menu {
@@ -819,6 +822,13 @@ button {
     animation: none;
     opacity: 1;
     transform: none;
+  }
+}
+
+/* Hide header CTA on small screens (mobile header retains only the hamburger) */
+@media (max-width: 900px) {
+  .header-inner > .btn-border {
+    display: none !important;
   }
 }
 
