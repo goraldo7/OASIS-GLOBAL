@@ -825,6 +825,17 @@ button {
   }
 }
 
+/* Desktop: Hide mobile hamburger menu */
+@media (min-width: 961px) {
+  .mobile-toggle {
+    display: none !important;
+  }
+  
+  .mobile-menu {
+    display: none !important;
+  }
+}
+
 /* Hide header CTA on small screens (mobile header retains only the hamburger) */
 @media (max-width: 900px) {
   .header-inner > .btn-border {
